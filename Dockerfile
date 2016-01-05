@@ -54,3 +54,19 @@ ENTRYPOINT ["/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
 
 # from a derived Dockerfile, can use `RUN plugins.sh active.txt` to setup /usr/share/jenkins/ref/plugins from a support bundle
 COPY plugins.sh /usr/local/bin/plugins.sh
+
+
+# ssh
+ENV ROOT_PWD 123456
+# 安装ssh服务
+RUN apt-get update && apt-get install -y openssh-server
+RUN mkdir -p /var/run/sshd
+# 用户名，密码
+RUN echo 'root:$ROOT_PWD' | chpasswd
+RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# 取消pam的限制，否则用户登录后就被踢出
+RUN sed -ri 's/session required pam_loginuid.so/#session required pam_loginuid.so/g' /etc/pam.d/sshd
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
