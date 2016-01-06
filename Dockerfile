@@ -59,7 +59,7 @@ COPY plugins.sh /usr/local/bin/plugins.sh
 # ssh
 ENV ROOT_PWD 123456
 # 安装ssh服务
-RUN apt-get update && apt-get install -y openssh-server
+RUN apt-get install -y openssh-server
 RUN mkdir -p /var/run/sshd
 # 用户名，密码
 RUN echo 'root:$ROOT_PWD' | chpasswd
