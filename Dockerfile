@@ -56,17 +56,21 @@ ENTRYPOINT ["/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
 COPY plugins.sh /usr/local/bin/plugins.sh
 
 
-# ssh
-ENV ROOT_PWD 123456
-# 安装ssh服务
-RUN apt-get install -y openssh-server
-RUN mkdir -p /var/run/sshd
-# 用户名，密码
-RUN echo 'root:$ROOT_PWD' | chpasswd
-RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
-# 取消pam的限制，否则用户登录后就被踢出
-RUN sed -ri 's/session required pam_loginuid.so/#session required pam_loginuid.so/g' /etc/pam.d/sshd
+ENV ROOT_PWD 123456
+
+RUN apt-get update
+
+RUN apt-get install -y openssh-server
+RUN apt-get install -y git
+RUN mkdir /var/run/sshd
+
+RUN echo 'root:$ROOT_PWD' |chpasswd
+
+RUN sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+RUN echo 'ClientAliveInterval 120' >> /etc/ssh/sshd_config
 
 EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]
+
+CMD    ["/usr/sbin/sshd", "-D"]
