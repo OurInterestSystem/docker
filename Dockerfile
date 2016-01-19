@@ -1,6 +1,6 @@
 FROM java:8-jdk
 
-RUN apt-get update && apt-get install -y wget git curl zip && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y openssh-server wget git curl zip && rm -rf /var/lib/apt/lists/*
 
 ENV JENKINS_HOME /var/jenkins_home
 ENV JENKINS_SLAVE_AGENT_PORT 50000
@@ -59,10 +59,7 @@ COPY plugins.sh /usr/local/bin/plugins.sh
 
 ENV ROOT_PWD 123456
 
-RUN apt-get update
 
-RUN apt-get install -y openssh-server
-RUN apt-get install -y git
 RUN mkdir /var/run/sshd
 
 RUN echo 'root:$ROOT_PWD' |chpasswd
